@@ -1,5 +1,5 @@
 /**************************************************************
- * Class:  CSC-415-0# Summer 2021
+ * Class:  CSC-415-01# Summer 2021
  * Name: Sidney Thomas
  * Student ID: 918656419
  * GitHub Name: bierman
@@ -49,7 +49,20 @@ int main(int argc, char *argumentValues[])
     // ? check that
     // printf("languages is 0x%x\n", studentInfo->languages); // Print as hexadecimal
 
-    // Using the allocated memory
+    // using the allocated memory
+
+    // calling the writePersonalInfo function to write the studentInfo
+    int writeSucess = writePersonalInfo(studentInfo);
+
+    // check if the writePersonalInfo function was successful
+    if (writeSucess == 0)
+    {
+        printf("Personal information written successfullu\n");
+    }
+    else
+    {
+        printf("Failed to write personal information.\n");
+    }
 
     // done with the allocated memory, so freeing it
     free(studentInfo);
