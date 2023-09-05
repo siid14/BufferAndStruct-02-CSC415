@@ -52,10 +52,10 @@ int main(int argc, char *argumentValues[])
     // using the allocated memory
 
     // calling the writePersonalInfo function to write the studentInfo
-    int writeSucess = writePersonalInfo(studentInfo);
+    int writeSuccess = writePersonalInfo(studentInfo);
 
     // check if the writePersonalInfo function was successful
-    if (writeSucess == 0)
+    if (writeSuccess == 0)
     {
         printf("Personal information written successfullu\n");
     }
