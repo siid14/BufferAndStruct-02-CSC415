@@ -49,7 +49,17 @@ int main(int argc, char *argumentValues[])
     // ? check that
     // printf("languages is 0x%x\n", studentInfo->languages); // Print as hexadecimal
 
-    // Using the allocated memory
+    // using the allocated memory
+    int writeSucess = writePersonalInfo(studentInfo);
+
+if (writeSucess == 0)
+{
+printf("Personal information written successfully\n");
+}
+else
+{
+printf("Failed to write personal information.\n");
+}
 
     // done with the allocated memory, so freeing it
     free(studentInfo);
