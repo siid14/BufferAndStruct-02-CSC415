@@ -68,8 +68,8 @@ int main(int argc, char *argumentValues[])
     printf("Failed to write personal information\n");
     }
 
-// create a buffer of size BLOCK_SIZE using malloc.
-char *buffer = (char *)malloc(BLOCK_SIZE * sizeof(char));
+    // create a buffer of size BLOCK_SIZE using malloc.
+    char *buffer = malloc(BLOCK_SIZE * sizeof(char));
 
     // check if malloc was successful in allocating memory.
     if (buffer == NULL)
@@ -82,87 +82,98 @@ char *buffer = (char *)malloc(BLOCK_SIZE * sizeof(char));
     size_t bufferPosition = 0; // current position in the buffer.
     size_t dataWritten = 0;    // amount of data written to the buffer.
 
-const char *nextString = getNext();
-while ((nextString = getNext()) != NULL)
-{
-    // process each received string in this loop.
-    size_t stringLength = strlen(nextString);
-    size_t spaceLeftInBuffer = BLOCK_SIZE - bufferPosition;
-
-        printf("String Length: %zu\n", stringLength);
-        printf("Space Left in Buffer: %zu\n", spaceLeftInBuffer);
-        printf("\n");
-
-    // check if the string can fit in the remaining space in the buffer.
-    if (stringLength <= spaceLeftInBuffer)
+    const char *nextString = getNext();
+    while (nextString != NULL)
     {
-        printf("STRING IS LESS THAN THE BUFFER SPACE\n\n");
-
-        // the entire string fits in the remaining space, so copy it to the buffer.
-        memcpy(buffer + bufferPosition, nextString, stringLength); // copy string into buffer starting at current buffer position
-        bufferPosition += stringLength; // buffer position point to the next available position in buffer
-        printf("bufferPosition (enough space): %zu\n\n", bufferPosition);
-    }
-    else
-    {
-        printf("STRING IS LARGER THAN THE BUFFER SPACE\n\n");
-
-        // the string is larger than the remaining space in the buffer
-        // copy as much as possible into the buffer and commit the buffer
-        size_t bytesToCopy = spaceLeftInBuffer; // calculates the number of bytes to copy into the buffer
-        printf("bytesTocopy: %zu\n", spaceLeftInBuffer);
-
-        // copy the calculated number of bytes from nextString to the buffer, 
-        // starting at the current buffer position
-        memcpy(buffer + bufferPosition, nextString, bytesToCopy);
-
-        // updates the buffer position
-        bufferPosition += bytesToCopy; 
-        printf("bufferPosition (not enough space): %zu\n", bufferPosition);
         
-        // commit the filled buffer using commitBlock.
-        printf("Buffer is filled so committing block\n");
-        commitBlock(buffer);
+        // process each received string in this loop.
+        size_t stringLength = strlen(nextString);
+        size_t spaceLeftInBuffer = BLOCK_SIZE - bufferPosition;
 
-        // reset the buffer position and copy the remaining part of the string.
-        printf("Buffer position reset to 0\n");
-        bufferPosition = 0;
-        
+            printf("String Length: %zu\n", stringLength);
+            printf("Space Left in Buffer: %zu\n", spaceLeftInBuffer);
+            printf("\n");
 
-        // continue copying the remaining part of the string in smaller chunks.
-        size_t remainingBytesToCopy = stringLength - spaceLeftInBuffer;
-        printf("remainingBytesToCopy: %zu\n\n", remainingBytesToCopy);
-
-        while (remainingBytesToCopy > 0)
+        // check if the string can fit in the remaining space in the buffer.
+        if (stringLength <= spaceLeftInBuffer)
         {
-            printf("REMAINING PART OF STRING (SMALLER CHUNK)\n\n");
+            printf("STRING IS LESS THAN THE BUFFER SPACE\n\n");
 
-            // determine the size of the next data chunk to copy
-            // either set to the remaining bytes to copy (remainingBytesToCopy) if they are less than the block size BLOCK SIZE
-            // or it is set to the block size if there are more bytes remaining than the block size
-            size_t chunkSize = (remainingBytesToCopy < BLOCK_SIZE) ? remainingBytesToCopy : BLOCK_SIZE;
-            printf("chunkSize: %zu\n", chunkSize);
+            // the entire string fits in the remaining space, so copy it to the buffer.
+            printf("Processing the copy of the string with %zu", stringLength);
+            printf(" Bytes\n");
+            memcpy(buffer + bufferPosition, nextString, stringLength); // copy string into buffer starting at current buffer position
+            bufferPosition += stringLength; // buffer position point to the next available position in buffer
+            printf("bufferPosition (enough space): %zu\n\n", bufferPosition);
+        }
+        else
+        {
+            printf("STRING IS LARGER THAN THE BUFFER SPACE\n\n");
 
-            // copy the chunk of data from 'nextString' to 'buffer'
-            memcpy(buffer, nextString + stringLength - remainingBytesToCopy, chunkSize);
+            // the string is larger than the remaining space in the buffer
+            // copy as much as possible into the buffer and commit the buffer
+            size_t bytesToCopy = spaceLeftInBuffer; // calculates the number of bytes to copy into the buffer
+            printf("bytesTocopy: %zu\n", spaceLeftInBuffer);
 
-            // update the remaining bytes to copy
-            remainingBytesToCopy -= chunkSize;
-            printf("remainingBytesToCopy: %zu\n", remainingBytesToCopy);
+            // copy the calculated number of bytes from nextString to the buffer, 
+            // starting at the current buffer position
+            printf("Processing the copy of the string with %zu", bytesToCopy);
+            printf(" Bytes\n");
+            memcpy(buffer + bufferPosition, nextString, bytesToCopy);
 
-            // update the buffer position
-            bufferPosition = chunkSize;
-            printf("bufferPosition (remaining parts): %zu\n", bufferPosition);
+            // updates the buffer position
+            bufferPosition += bytesToCopy; 
+            printf("bufferPosition (not enough space): %zu\n", bufferPosition);
             
             // commit the filled buffer using commitBlock.
-            printf("Buffer is filled so committing block\n\n");
+            printf("Buffer is filled so committing block\n");
             commitBlock(buffer);
+
+            // reset the buffer position and copy the remaining part of the string.
+            printf("Buffer position reset to 0\n");
+            bufferPosition = 0;
+            
+
+            // continue copying the remaining part of the string in smaller chunks.
+            size_t remainingBytesToCopy = stringLength - spaceLeftInBuffer;
+            printf("remainingBytesToCopy: %zu\n\n", remainingBytesToCopy);
+
+            while (remainingBytesToCopy > 0)
+            {
+                printf("REMAINING PART OF STRING (SMALLER CHUNK)\n\n");
+
+                // determine the size of the next data chunk to copy
+                // either set to the remaining bytes to copy (remainingBytesToCopy) if they are less than the block size BLOCK SIZE
+                // or it is set to the block size if there are more bytes remaining than the block size
+                size_t chunkSize = (remainingBytesToCopy < BLOCK_SIZE) ? remainingBytesToCopy : BLOCK_SIZE;
+                printf("chunkSize: %zu\n", chunkSize);
+
+                // copy the chunk of data from 'nextString' to 'buffer'
+                printf("Processing the copy of the rest of the string with %zu", chunkSize);
+                printf(" Bytes\n");
+                memcpy(buffer, nextString + stringLength - remainingBytesToCopy, chunkSize);
+
+                // update the remaining bytes to copy
+                remainingBytesToCopy -= chunkSize;
+                printf("remainingBytesToCopy: %zu\n", remainingBytesToCopy);
+
+                // update the buffer position
+                bufferPosition = chunkSize;
+                printf("bufferPosition (remaining parts): %zu\n", bufferPosition);
+
+                if(bufferPosition == 256){
+                // commit the filled buffer using commitBlock.
+                printf("===Buffer is filled so committing block\n\n");
+                commitBlock(buffer);
+                } 
+            }
         }
+        nextString = getNext();
     }
-}
 
-
-    checkIt();
+    if(bufferPosition != NULL){
+        commitBlock(buffer);
+    }
 
     // done with the allocated memory, so freeing it
     free(studentInfo);
