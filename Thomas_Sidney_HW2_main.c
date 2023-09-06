@@ -82,11 +82,11 @@ int main(int argc, char *argumentValues[])
     char *nextString;
     while ((nextString = getNext()) != NULL)
     {
-        // Process each received string in this loop.
+        // process each received string in this loop.
         size_t stringLength = strlen(nextString);
         size_t spaceLeftInBuffer = BLOCK_SIZE - bufferPosition;
 
-        // Check if the string can fit in the remaining space in the buffer.
+        // check if the string can fit in the remaining space in the buffer.
         if (stringLength <= spaceLeftInBuffer)
         {
             // The entire string fits in the remaining space, so copy it to the buffer.
@@ -95,16 +95,16 @@ int main(int argc, char *argumentValues[])
         }
         else
         {
-            // The string is larger than the remaining space in the buffer.
-            // Copy as much as possible into the buffer and commit the buffer.
+            // the string is larger than the remaining space in the buffer.
+            // copy as much as possible into the buffer and commit the buffer.
             size_t bytesToCopy = spaceLeftInBuffer;
             memcpy(buffer + bufferPosition, nextString, bytesToCopy);
             bufferPosition += bytesToCopy;
 
-            // Commit the filled buffer using commitBlock.
+            // commit the filled buffer using commitBlock.
             commitBlock(buffer);
 
-            // Reset the buffer position and copy the remaining part of the string.
+            // reset the buffer position and copy the remaining part of the string.
             bufferPosition = 0;
             bytesToCopy = stringLength - spaceLeftInBuffer;
             memcpy(buffer + bufferPosition, nextString + spaceLeftInBuffer, bytesToCopy);
