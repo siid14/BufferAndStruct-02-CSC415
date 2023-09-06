@@ -40,6 +40,7 @@ int main(int argc, char *argumentValues[])
     studentInfo->level = SENIOR;
     studentInfo->languages = KNOWLEDGE_OF_C | KNOWLEDGE_OF_JAVA | KNOWLEDGE_OF_JAVASCRIPT | KNOWLEDGE_OF_CPLUSPLUS | KNOWLEDGE_OF_HTML | KNOWLEDGE_OF_MIPS_ASSEMBLER;
     strcpy(studentInfo->message, argumentValues[3]);
+    printf("argumentValues[3]: %s\n", argumentValues[3]);
 
     printf("firstName is %s\n", studentInfo->firstName);
     printf("lastName is %s\n", studentInfo->lastName);
@@ -51,11 +52,8 @@ int main(int argc, char *argumentValues[])
     // printf("languages is 0x%x\n", studentInfo->languages); // Print as hexadecimal
 
     // using the allocated memory
-
-    // calling the writePersonalInfo function to write the studentInfo
     int writeSuccess = writePersonalInfo(studentInfo);
 
-    // check if the writePersonalInfo function was successful
     if (writeSuccess == 0)
     {
         printf("Personal information written successfully\n");
@@ -64,6 +62,8 @@ int main(int argc, char *argumentValues[])
     {
         printf("Failed to write personal information.\n");
     }
+
+    // ...
 
     // create a buffer of size BLOCK_SIZE using malloc.
     char *buffer = (char *)malloc(BLOCK_SIZE * sizeof(char));
@@ -79,17 +79,21 @@ int main(int argc, char *argumentValues[])
     size_t bufferPosition = 0; // current position in the buffer.
     size_t dataWritten = 0;    // amount of data written to the buffer.
 
-    char *nextString;
+    const char *nextString;
     while ((nextString = getNext()) != NULL)
     {
         // process each received string in this loop.
         size_t stringLength = strlen(nextString);
         size_t spaceLeftInBuffer = BLOCK_SIZE - bufferPosition;
 
+        printf("String Length: %zu\n", stringLength);
+        printf("Space Left in Buffer: %zu\n", spaceLeftInBuffer);
+        printf("\n");
+
         // check if the string can fit in the remaining space in the buffer.
         if (stringLength <= spaceLeftInBuffer)
         {
-            // The entire string fits in the remaining space, so copy it to the buffer.
+            // the entire string fits in the remaining space, so copy it to the buffer.
             memcpy(buffer + bufferPosition, nextString, stringLength);
             bufferPosition += stringLength;
         }
@@ -101,20 +105,38 @@ int main(int argc, char *argumentValues[])
             memcpy(buffer + bufferPosition, nextString, bytesToCopy);
             bufferPosition += bytesToCopy;
 
+            printf("Buffer is filled so committing block\n");
             // commit the filled buffer using commitBlock.
             commitBlock(buffer);
 
             // reset the buffer position and copy the remaining part of the string.
             bufferPosition = 0;
-            bytesToCopy = stringLength - spaceLeftInBuffer;
-            memcpy(buffer + bufferPosition, nextString + spaceLeftInBuffer, bytesToCopy);
-            bufferPosition += bytesToCopy;
+
+            // Continue copying the remaining part of the string in smaller chunks.
+            size_t remainingBytesToCopy = stringLength - spaceLeftInBuffer;
+            printf("Remaining part of string: %zu\n", remainingBytesToCopy);
+
+            while (remainingBytesToCopy > 0)
+            {
+                size_t chunkSize = (remainingBytesToCopy < BLOCK_SIZE) ? remainingBytesToCopy : BLOCK_SIZE;
+                printf("chunk size: %zu\n", chunkSize);
+
+                memcpy(buffer, nextString + stringLength - remainingBytesToCopy, chunkSize);
+                remainingBytesToCopy -= chunkSize;
+                bufferPosition = chunkSize;
+
+                printf("Buffer is filled so committing block\n");
+                // commit the filled buffer using commitBlock.
+                commitBlock(buffer);
+            }
         }
     }
+
+    checkIt();
 
     // done with the allocated memory, so freeing it
     free(studentInfo);
     free(buffer);
 
-    return 0; // exit successfully
+    return checkIt(); // exit successfully
 }
