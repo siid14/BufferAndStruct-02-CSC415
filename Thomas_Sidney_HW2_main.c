@@ -1,5 +1,5 @@
 /**************************************************************
- * Class:  CSC-415-0# Summer 2021
+ * Class:  CSC-415-01# Summer 2021
  * Name: Sidney Thomas
  * Student ID: 918656419
  * GitHub Name: bierman
@@ -14,6 +14,7 @@
 #include <stdio.h>  // library for input/output
 #include <stdlib.h> // library for memory management
 #include <string.h>
+#include <errno.h>
 #include "assignment2.h"
 
 int main(int argc, char *argumentValues[])
@@ -39,6 +40,8 @@ int main(int argc, char *argumentValues[])
     studentInfo->level = SENIOR;
     studentInfo->languages = KNOWLEDGE_OF_C | KNOWLEDGE_OF_JAVA | KNOWLEDGE_OF_JAVASCRIPT | KNOWLEDGE_OF_CPLUSPLUS | KNOWLEDGE_OF_HTML | KNOWLEDGE_OF_MIPS_ASSEMBLER;
     strcpy(studentInfo->message, argumentValues[3]);
+    printf("argumentValues[3]: %s\n", argumentValues[3]);
+
 
     printf("firstName is %s\n", studentInfo->firstName);
     printf("lastName is %s\n", studentInfo->lastName);
@@ -50,19 +53,93 @@ int main(int argc, char *argumentValues[])
     // printf("languages is 0x%x\n", studentInfo->languages); // Print as hexadecimal
 
     // using the allocated memory
-    int writeSucess = writePersonalInfo(studentInfo);
+    int writeSuccess = writePersonalInfo(studentInfo);
 
-if (writeSucess == 0)
+    if (writeSuccess == 0)
+    {
+    printf("Personal information written successfully\n");
+    }
+    else
+    {
+    printf("Failed to write personal information.\n");
+    }
+   
+
+    // ...
+
+// create a buffer of size BLOCK_SIZE using malloc.
+char *buffer = (char *)malloc(BLOCK_SIZE * sizeof(char));
+
+// check if malloc was successful in allocating memory.
+if (buffer == NULL)
 {
-printf("Personal information written successfully\n");
+    perror("Failed to allocate memory for the buffer");
+    exit(1); // exit the program with an error code.
 }
-else
+
+// initialize variables to keep track of the buffer position and data written.
+size_t bufferPosition = 0; // current position in the buffer.
+size_t dataWritten = 0;    // amount of data written to the buffer.
+
+const char *nextString;
+while ((nextString = getNext()) != NULL)
 {
-printf("Failed to write personal information.\n");
+    // process each received string in this loop.
+    size_t stringLength = strlen(nextString);
+    size_t spaceLeftInBuffer = BLOCK_SIZE - bufferPosition;
+
+    printf("String Length: %zu\n", stringLength);
+    printf("Space Left in Buffer: %zu\n", spaceLeftInBuffer);
+    printf("\n");
+
+    // check if the string can fit in the remaining space in the buffer.
+    if (stringLength <= spaceLeftInBuffer)
+    {
+        // the entire string fits in the remaining space, so copy it to the buffer.
+        memcpy(buffer + bufferPosition, nextString, stringLength);
+        bufferPosition += stringLength;
+    }
+    else
+    {
+        // the string is larger than the remaining space in the buffer.
+        // copy as much as possible into the buffer and commit the buffer.
+        size_t bytesToCopy = spaceLeftInBuffer;
+        memcpy(buffer + bufferPosition, nextString, bytesToCopy);
+        bufferPosition += bytesToCopy;
+
+        printf("Buffer is filled so committing block\n");
+        // commit the filled buffer using commitBlock.
+        commitBlock(buffer);
+
+        // reset the buffer position and copy the remaining part of the string.
+        bufferPosition = 0;
+
+        // Continue copying the remaining part of the string in smaller chunks.
+        size_t remainingBytesToCopy = stringLength - spaceLeftInBuffer;
+        printf("Remaining part of string: %zu\n", remainingBytesToCopy);
+
+        while (remainingBytesToCopy > 0)
+        {
+            size_t chunkSize = (remainingBytesToCopy < BLOCK_SIZE) ? remainingBytesToCopy : BLOCK_SIZE;
+            printf("chunk size: %zu\n", chunkSize);
+
+            memcpy(buffer, nextString + stringLength - remainingBytesToCopy, chunkSize);
+            remainingBytesToCopy -= chunkSize;
+            bufferPosition = chunkSize;
+
+            printf("Buffer is filled so committing block\n");
+            // commit the filled buffer using commitBlock.
+            commitBlock(buffer);
+        }
+    }
 }
+
+
+    checkIt(); 
 
     // done with the allocated memory, so freeing it
     free(studentInfo);
+    free(buffer);
 
-    return 0; // exit successfully
+    return checkIt(); // exit successfully
 }
