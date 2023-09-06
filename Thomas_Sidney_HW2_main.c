@@ -47,7 +47,6 @@ int main(int argc, char *argumentValues[])
     strcpy(studentInfo->message, argumentValues[3]);
     printf("argumentValues[3]: %s\n", argumentValues[3]);
 
-
     printf("firstName is %s\n", studentInfo->firstName);
     printf("lastName is %s\n", studentInfo->lastName);
     printf("studentID is %d\n", studentInfo->studentID);
@@ -62,7 +61,7 @@ int main(int argc, char *argumentValues[])
 
     if (writeSuccess == 0)
     {
-    printf("Personal information written successfully\n");
+        printf("Personal information written successfully\n");
     }
     else
     {
@@ -72,16 +71,16 @@ int main(int argc, char *argumentValues[])
 // create a buffer of size BLOCK_SIZE using malloc.
 char *buffer = (char *)malloc(BLOCK_SIZE * sizeof(char));
 
-// check if malloc was successful in allocating memory.
-if (buffer == NULL)
-{
-    perror("Failed to allocate memory for the buffer");
-    exit(1); // exit the program with an error code.
-}
+    // check if malloc was successful in allocating memory.
+    if (buffer == NULL)
+    {
+        perror("Failed to allocate memory for the buffer");
+        exit(1); // exit the program with an error code.
+    }
 
-// initialize variables to keep track of the buffer position and data written.
-size_t bufferPosition = 0; // current position in the buffer.
-size_t dataWritten = 0;    // amount of data written to the buffer.
+    // initialize variables to keep track of the buffer position and data written.
+    size_t bufferPosition = 0; // current position in the buffer.
+    size_t dataWritten = 0;    // amount of data written to the buffer.
 
 const char *nextString = getNext();
 while ((nextString = getNext()) != NULL)
@@ -90,9 +89,9 @@ while ((nextString = getNext()) != NULL)
     size_t stringLength = strlen(nextString);
     size_t spaceLeftInBuffer = BLOCK_SIZE - bufferPosition;
 
-    printf("String Length: %zu\n", stringLength);
-    printf("Space Left in Buffer: %zu\n", spaceLeftInBuffer);
-    printf("\n");
+        printf("String Length: %zu\n", stringLength);
+        printf("Space Left in Buffer: %zu\n", spaceLeftInBuffer);
+        printf("\n");
 
     // check if the string can fit in the remaining space in the buffer.
     if (stringLength <= spaceLeftInBuffer)
@@ -163,7 +162,7 @@ while ((nextString = getNext()) != NULL)
 }
 
 
-    checkIt(); 
+    checkIt();
 
     // done with the allocated memory, so freeing it
     free(studentInfo);
