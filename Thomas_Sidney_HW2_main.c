@@ -7,23 +7,33 @@
  *
  * File: Thomas_Sidney_HW2_main.c
  *
- * Description: To show how to use ...
+ * Description: This C program demonstrates the use of command-line arguments to collect and process
+ * personal information and data. The program performs the following:
+ *
+ * 1. Allocates memory to store personal information, such as the first name etc...
+ * 2. Populates the personalInfo structure with data retrieved from command-line arguments.
+ * 3. Calls the writePersonalInfo function to perform some write operation with the personalInfo data.
+ * 4. Allocates a buffer for data processing.
+ * 5. Retrieves strings of data  using the getNext function and processes them.
+ * 6. Manages the buffer to  store and commit data in smaller chunks.
+ * 7. Commits data  using the commitBlock function when the buffer is full.
+ * 8. Ensures that any remaining data in the buffer is properly committed before the program exits.
+ * 9. Frees allocated memory to prevent memory leaks.
+ * 10. Returns an exit status code based on the result of the checkIt function.
  *
  **************************************************************/
 
 #include <stdio.h>  // library for input/output
 #include <stdlib.h> // library for memory management
 #include <string.h>
-#include <errno.h>
 #include "assignment2.h"
 
 int main(int argc, char *argumentValues[])
 {
-
-    
-    // allocating memory for personalInfo
+    // allocating memory for storing personalInfo
     personalInfo *studentInfo = (personalInfo *)malloc(sizeof(personalInfo));
 
+    // studentInfo memory allocattion check
     if (studentInfo == NULL)
     {
         // handle memory allocation failure
@@ -31,7 +41,7 @@ int main(int argc, char *argumentValues[])
         return 1; // exit with an error code
     }
 
-    // populating data to personalInfo
+    // populating personalInfo with data from command-line arguments
     studentInfo->firstName = argumentValues[1];
     studentInfo->lastName = argumentValues[2];
     studentInfo->studentID = 918656419;
@@ -45,24 +55,25 @@ int main(int argc, char *argumentValues[])
     strcpy(studentInfo->message, argumentValues[3]);
 
 
-    // using the allocated memory
+    // allocate a buffer for data processing
     int writeSuccess = writePersonalInfo(studentInfo);
 
 
     // create a buffer of size BLOCK_SIZE using malloc.
     char *buffer = malloc(BLOCK_SIZE * sizeof(char));
 
-    // check if malloc was successful in allocating memory.
+    // buffer memory allocation check
     if (buffer == NULL)
     {
         perror("Failed to allocate memory for the buffer");
         exit(1); // exit the program with an error code.
     }
 
-    // initialize variables to keep track of the buffer position and data written.
-    size_t bufferPosition = 0; // current position in the buffer.
-    size_t dataWritten = 0;    // amount of data written to the buffer.
+    // initialize variables to keep track of the buffer position and data written
+    size_t bufferPosition = 0; 
+    size_t dataWritten = 0;    
 
+    // get the next string
     const char *nextString = getNext();
     while (nextString != NULL)
     {
@@ -98,7 +109,6 @@ int main(int argc, char *argumentValues[])
             // reset the buffer position and copy the remaining part of the string.
             bufferPosition = 0;
             
-
             // continue copying the remaining part of the string in smaller chunks.
             size_t remainingBytesToCopy = stringLength - spaceLeftInBuffer;
 
@@ -118,8 +128,8 @@ int main(int argc, char *argumentValues[])
                 // update the buffer position
                 bufferPosition = chunkSize;
 
+                // check if the buffer needs to be commited
                 if(bufferPosition == 256){
-                // commit the filled buffer using commitBlock.
                 commitBlock(buffer);
                 } 
             }
@@ -127,11 +137,12 @@ int main(int argc, char *argumentValues[])
         nextString = getNext();
     }
 
-    if(bufferPosition != NULL){
+    // commit remaining data into the buffer
+    if(bufferPosition){
         commitBlock(buffer);
     }
 
-    // done with the allocated memory, so freeing it
+    // free allocated memory
     free(studentInfo);
     free(buffer);
 
